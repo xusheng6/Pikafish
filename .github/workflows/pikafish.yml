@@ -106,6 +106,54 @@ jobs:
             README.md
             Top CPU Contributors.txt
 
+  Pikafish-MacOS-M1:
+    name: MacOS-apple-silicon
+    runs-on: macos-14
+    env:
+      ARCH: apple-silicon
+      COMPILER: clang++
+      COMP: clang
+      EXE: pikafish-apple-silicon
+    defaults:
+      run:
+        working-directory: src
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile apple-silicon build
+        run: |
+          wget -q https://github.com/official-pikafish/Networks/releases/download/master-net/pikafish.nnue
+          make -j profile-build EXE=$EXE
+          make strip EXE=$EXE
+
+      - name: Copy binary to folder
+        run: |
+          cd ..
+          mkdir MacOS-M1
+          cp src/$EXE MacOS-M1
+
+      - name: Download wiki
+        run: |
+          git clone https://github.com/official-pikafish/Pikafish.wiki.git ../Wiki
+          cd ../Wiki
+          rm -rf .git
+
+      # Artifacts automatically get zipped.
+      # To avoid double-zipping, we use the unzipped directory
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pikafish-MacOS-M1-apple-silicon
+          path: |
+            MacOS-M1/*
+            Wiki
+            AUTHORS
+            CONTRIBUTING.md
+            Copying.txt
+            README.md
+            Top CPU Contributors.txt
+
   Pikafish-Android:
     name: Android-${{ matrix.arch }}
     runs-on: ubuntu-latest
